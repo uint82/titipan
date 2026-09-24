@@ -1,0 +1,156 @@
+@use 'sass:color';
+@use 'variables' as *;
+
+.category-filter {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  flex-wrap: wrap;
+  margin-bottom: $space-4;
+}
+
+.filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid $border-strong;
+  background: white;
+  color: $text-secondary;
+  cursor: pointer;
+  transition: all $transition;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: $text-muted;
+  }
+
+  &--active {
+    background: $text;
+    border-color: $text;
+    color: white;
+
+    .filter-pill__count {
+      background: rgba(white, 0.2);
+      color: white;
+    }
+
+    .filter-pill__icon {
+      color: white;
+    }
+  }
+
+  &__count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 99px;
+    background: $bg;
+    color: $text-muted;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: $font-mono;
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    color: inherit;
+  }
+}
+
+
+.vault-card__category {
+  padding-top: $space-2;
+}
+
+.category-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: $radius-sm;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid transparent;
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  &--purple {
+    background: #F5F3FF;
+    color: #6D28D9;
+    border-color: #DDD6FE;
+
+    svg {
+      stroke: #6D28D9;
+    }
+  }
+
+  &--green {
+    background: $success-light;
+    color: color.adjust(#16A34A, $lightness: -5%);
+    border-color: #BBF7D0;
+
+    svg {
+      stroke: color.adjust(#16A34A, $lightness: -5%);
+    }
+  }
+
+  &--blue {
+    background: $accent-light;
+    color: $accent;
+    border-color: #BFDBFE;
+
+    svg {
+      stroke: $accent;
+    }
+  }
+
+  &--red {
+    background: $danger-light;
+    color: $danger;
+    border-color: #FECACA;
+
+    svg {
+      stroke: $danger;
+    }
+  }
+
+  &--orange {
+    background: $warning-light;
+    color: color.adjust($warning, $lightness: -5%);
+    border-color: #FED7AA;
+
+    svg {
+      stroke: color.adjust($warning, $lightness: -5%);
+    }
+  }
+
+  &--teal {
+    background: #F0FDFA;
+    color: #0F766E;
+    border-color: #99F6E4;
+
+    svg {
+      stroke: #0F766E;
+    }
+  }
+
+  &--gray {
+    background: $bg;
+    color: $text-muted;
+    border-color: $border-strong;
+
+    svg {
+      stroke: $text-muted;
+    }
+  }
+}

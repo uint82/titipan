@@ -1,0 +1,612 @@
+@use 'variables' as *;
+@use "sass:color";
+
+.page-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space-4;
+}
+
+.login-wrap {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: $space-6;
+}
+
+.login-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-2;
+  text-align: center;
+
+  h1 {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: $text;
+  }
+
+  p {
+    font-size: 14px;
+    color: $text-muted;
+    line-height: 1.6;
+  }
+}
+
+.login-card {
+  padding: $space-6;
+  display: flex;
+  flex-direction: column;
+  gap: $space-5;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+}
+
+.passkey-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-3;
+  width: 100%;
+  padding: 10px 16px;
+  background: white;
+  border: 1px solid $border-strong;
+  border-radius: $radius;
+  font-size: 14px;
+  font-weight: 500;
+  color: $text;
+  cursor: pointer;
+  transition: all $transition;
+  box-shadow: $shadow-sm;
+
+  &:hover {
+    background: $bg;
+    border-color: $border-strong;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+.login-points {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+  padding: $space-1 $space-2 0;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: $space-3;
+    font-size: 13px;
+    line-height: 1.55;
+    color: $text-secondary;
+  }
+
+  svg {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+    color: $accent;
+  }
+}
+
+.sent-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-3;
+  padding: $space-4 0;
+  text-align: center;
+
+  &__icon {
+    width: 44px;
+    height: 44px;
+    background: $success-light;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $success;
+  }
+
+  p {
+    font-size: 14px;
+    color: $text-secondary;
+    line-height: 1.6;
+  }
+
+  strong {
+    color: $text;
+  }
+
+  small {
+    font-size: 12px;
+    color: $text-faint;
+  }
+}
+
+.page-dashboard {
+  min-height: 100vh;
+}
+
+.dashboard-main {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: $space-8;
+}
+
+.dashboard-header {
+  flex: 1;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: $space-6;
+  gap: $space-3;
+
+  h1 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: $text;
+  }
+
+  p {
+    font-size: 13px;
+    color: $text-muted;
+    margin-bottom: 4px;
+  }
+}
+
+.vault-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: $space-4;
+  align-items: start; // tinggi masing2 kartu
+}
+
+.vault-card {
+  padding: $space-5 $space-5;
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+  transition: border-color $transition;
+
+  &:hover {
+    border-color: color.scale(#D1D5DB, $lightness: -5%);
+  }
+
+  &__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: $space-3;
+  }
+
+  &__file {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    min-width: 0;
+
+    svg {
+      flex-shrink: 0;
+      color: $text-muted;
+    }
+  }
+
+  &__filename {
+    font-size: 13px;
+    font-weight: 500;
+    color: $text;
+    font-family: $font-mono;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    gap: $space-1 + 2px;
+  }
+
+  &__meta-row {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    font-size: 12px;
+    color: $text-muted;
+
+    svg {
+      flex-shrink: 0;
+      width: 13px;
+      height: 13px;
+    }
+  }
+
+  &__countdown {
+    font-family: $font-mono;
+    font-size: 12px;
+    font-weight: 500;
+
+    &--urgent {
+      color: $warning;
+    }
+
+    &--overdue {
+      color: $danger;
+    }
+
+    &--ok {
+      color: $success;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: $space-2;
+    padding-top: $space-1;
+    border-top: 1px solid $border;
+    align-items: center;
+  }
+
+  &__activity {
+    margin-left: auto;
+    color: $text-faint;
+    font-size: 12px;
+    padding: 4px 6px;
+    gap: 3px;
+
+    svg {
+      opacity: 0.5;
+      transition: opacity $transition;
+    }
+
+    &:hover {
+      color: $text-muted;
+
+      svg {
+        opacity: 0.9;
+      }
+    }
+  }
+}
+
+.vault-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $space-3;
+  padding: $space-16 $space-8;
+  text-align: center;
+
+  &__icon {
+    width: 48px;
+    height: 48px;
+    background: $bg;
+    border: 1px solid $border;
+    border-radius: $radius-lg;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $text-faint;
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: $text;
+  }
+
+  p {
+    font-size: 13px;
+    color: $text-muted;
+    max-width: 280px;
+    line-height: 1.6;
+  }
+}
+
+.shimmer {
+  background: $border;
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  border-radius: $radius;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: .5;
+  }
+}
+
+.vault-skeleton {
+  height: 160px;
+  @extend .shimmer;
+}
+
+.page-verify {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space-4;
+}
+
+.verify-wrap {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  gap: $space-6;
+}
+
+.verify-header {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+
+  h1 {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: $text;
+  }
+
+  p {
+    font-size: 13px;
+    color: $text-muted;
+    line-height: 1.6;
+  }
+}
+
+.verify-vault-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow: hidden;
+  border-radius: $radius;
+  border: 1px solid $border;
+}
+
+.vault-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px $space-4;
+  background: white;
+  font-size: 13px;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid $border;
+  }
+
+  span:first-child {
+    color: $text-muted;
+  }
+
+  span:last-child {
+    font-weight: 500;
+    color: $text;
+    font-family: $font-mono;
+  }
+}
+
+.verify-card {
+  padding: $space-6;
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+}
+
+.verify-form {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+}
+
+.verify-note {
+  font-size: 12px;
+  color: $text-faint;
+  text-align: center;
+  line-height: 1.6;
+  padding-top: $space-2;
+}
+
+
+.verify-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-3;
+  padding: $space-6 0;
+  text-align: center;
+
+  &__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &--success {
+      background: $success-light;
+      color: $success;
+    }
+
+    &--error {
+      background: $danger-light;
+      color: $danger;
+    }
+  }
+
+  h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: $text;
+  }
+
+  p {
+    font-size: 13px;
+    color: $text-muted;
+  }
+}
+
+.drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+
+  &--open {
+    pointer-events: all;
+
+    .drawer__backdrop {
+      opacity: 1;
+    }
+
+    .drawer__panel {
+      transform: translateX(0);
+    }
+  }
+
+  &__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba($text, 0.25);
+    opacity: 0;
+    transition: opacity 240ms ease;
+    cursor: pointer;
+  }
+
+  &__panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 360px;
+    max-width: 90vw;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 280ms cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -4px 0 32px rgba($text, 0.1);
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $space-4 $space-5;
+    border-bottom: 1px solid $border;
+    flex-shrink: 0;
+  }
+
+  &__title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__title {
+    font-size: 15px;
+    font-weight: 600;
+    color: $text;
+    letter-spacing: -0.01em;
+  }
+
+  &__filename {
+    font-size: 12px;
+    color: $text-muted;
+    font-family: $font-mono;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 260px;
+  }
+
+  &__close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: $text-muted;
+    padding: 4px;
+    border-radius: $radius-sm;
+    display: flex;
+    flex-shrink: 0;
+    transition: color $transition;
+
+    &:hover {
+      color: $text;
+    }
+  }
+
+  &__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: $space-2 $space-5 $space-6;
+  }
+
+  &__loading,
+  &__empty {
+    font-size: 13px;
+    color: $text-faint;
+    text-align: center;
+    padding: $space-10 0;
+  }
+}
+
+@media (max-width: 768px) {
+  #new-vault-btn {
+    position: fixed;
+    right: $space-4;
+    bottom: $space-4;
+
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #new-vault-btn .vault-label {
+    display: none;
+  }
+
+  #new-vault-btn .vault-icon {
+    width: 24px;
+    height: 24px;
+  }
+}

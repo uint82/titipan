@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <title>Dashboard | Titipan</title>
+  <include src="src/html/head.html" />
+</head>
+
+<body class="page-dashboard">
+
+  <include src="src/html/navbar.html" />
+
+  <div id="passkey-banner" class="hidden" style="background-color: #fff3cd; color: #856404; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ffeeba;">
+    <span>Kamu belum memiliki passkey terdaftar di perangkat ini. Daftarkan passkey untuk masuk lebih cepat tanpa kata sandi.</span>
+    <button id="register-passkey-btn" class="btn btn--primary btn--sm" style="background-color: #856404; color: #fff;">Daftarkan Passkey</button>
+  </div>
+
+  <main class="dashboard-main">
+    <div class="dashboard-header">
+      <div class="dashboard-header__content">
+        <span class="dashboard-header__eyebrow">
+          Dashboard
+        </span>
+
+        <h1>Vault</h1>
+
+        <p class="dashboard-header__subtitle">
+          Dokumen terenkripsi dengan pengiriman otomatis jika kamu
+          melewatkan check-in.
+        </p>
+
+        <div class="dashboard-header__account">
+          <p>Masuk sebagai
+            <strong id="user-email"></strong>
+          </p>
+        </div>
+      </div>
+
+      <button id="new-vault-btn" class="btn btn--primary">
+        <svg class="vault-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+
+        <span class="vault-label">Vault baru</span>
+      </button>
+    </div>
+
+    <div id="category-filter" class="category-filter"></div>
+
+    <div id="vault-loading" class="vault-grid">
+      <div class="card vault-skeleton"></div>
+      <div class="card vault-skeleton"></div>
+    </div>
+
+    <div id="vault-grid" class="vault-grid hidden"></div>
+
+    <div id="vault-empty" class="hidden">
+      <div class="vault-empty">
+        <div class="vault-empty__icon">
+          <include src="src/html/icons/lock.svg" />
+        </div>
+        <h3>Belum ada vault</h3>
+        <p>Buat vault untuk mengenkripsi dokumen dan atur pengiriman otomatis.</p>
+        <button id="new-vault-empty-btn" class="btn btn--primary btn--sm">Buat vault pertamamu</button>
+      </div>
+    </div>
+  </main>
+
+  <div id="vault-modal" class="modal" aria-hidden="true">
+    <div class="modal__backdrop" id="modal-backdrop"></div>
+    <div class="modal__panel">
+      <div class="modal__header">
+        <span class="modal__title">Vault baru</span>
+        <button class="modal__close" id="modal-close">
+          <include src="src/html/icons/x.svg" />
+        </button>
+      </div>
+
+      <form id="vault-form" novalidate>
+        <div class="modal__body">
+
+          <div class="form-group">
+            <label class="form-label">File</label>
+            <div class="file-drop" id="file-drop">
+              <input type="file" id="file-input" class="file-drop__input" />
+              <div class="file-drop__label" id="file-label">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+                <span>Klik untuk unggah atau seret &amp; lepas file ke sini</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="category" class="form-label">Kategori</label>
+            <select id="category" class="form-input form-select">
+              <option value="pesan_pribadi">Pesan Pribadi</option>
+              <option value="keuangan_aset">Keuangan &amp; Aset</option>
+              <option value="dokumen_hukum">Dokumen Hukum</option>
+              <option value="sensitif">Sensitif</option>
+              <option value="kredensial">Kredensial</option>
+              <option value="bisnis">Bisnis</option>
+              <option value="lainnya" selected>Lainnya</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="recipient" class="form-label">Email penerima</label>
+            <input type="email" id="recipient" class="form-input" placeholder="penerima@contoh.com" required />
+            <span class="form-hint">
+              Orang ini akan menerima file terenkripsi jika kamu melewatkan batas waktu check-in.
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="deadline" class="form-label">Batas waktu check-in</label>
+            <select id="deadline" class="form-input form-select">
+              <option value="7">7 hari</option>
+              <option value="14" selected>14 hari</option>
+              <option value="30">30 hari</option>
+              <option value="60">60 hari</option>
+              <option value="90">90 hari</option>
+            </select>
+            <span class="form-hint">
+              Kamu harus check-in sebelum periode ini berakhir, atau vault akan dikirimkan ke penerima.
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="passphrase" class="form-label">Frasa sandi enkripsi</label>
+            <input type="password" id="passphrase" class="form-input" placeholder="Buat frasa sandi yang kuat" required
+              autocomplete="new-password" />
+            <span class="form-hint form-hint--warn">
+              Bagikan frasa sandi ini ke penerima secara terpisah (di luar aplikasi). Frasa sandi tidak pernah disimpan
+              atau dikirim ke server.
+            </span>
+          </div>
+
+        </div>
+
+        <div class="modal__footer">
+          <button type="button" id="modal-cancel" class="btn btn--secondary">Batal</button>
+          <button type="submit" id="vault-submit" class="btn btn--primary">
+            Enkripsi &amp; simpan
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="activity-drawer" class="drawer" aria-hidden="true">
+    <div class="drawer__backdrop" id="drawer-backdrop"></div>
+    <div class="drawer__panel">
+      <div class="drawer__header">
+        <div class="drawer__title-group">
+          <span class="drawer__title">Aktivitas</span>
+          <span class="drawer__filename" id="drawer-filename"></span>
+        </div>
+        <button class="drawer__close" id="drawer-close" aria-label="Tutup">
+          <include src="src/html/icons/x.svg" />
+        </button>
+      </div>
+      <div class="drawer__body" id="drawer-body"></div>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+  <script type="module" src="/src/ts/pages/dashboard.ts"></script>
+</body>
+
+</html>

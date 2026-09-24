@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <title>Buka vault | Titipan</title>
+  <include src="src/html/head.html" />
+</head>
+
+<body class="page-verify">
+
+  <div class="verify-wrap">
+
+    <div class="verify-header">
+      <a href="/" class="logo" style="margin-bottom:8px;">
+        <include src="src/html/logo.html" />
+      </a>
+      <h1>Sebuah vault telah dikirimkan kepadamu</h1>
+      <p>
+        Masukkan frasa sandi yang dibagikan oleh pemilik vault untuk mendekripsi dan mengunduh file.
+        Semua proses terjadi di browsermu - tidak ada kunci yang dikirim ke server.
+      </p>
+    </div>
+
+    <div id="vault-info" class="verify-vault-info hidden"></div>
+
+    <div id="not-released" class="hidden">
+      <div class="card" style="padding:16px;display:flex;gap:12px;align-items:flex-start;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2"
+          style="flex-shrink:0;margin-top:1px;">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+          <line x1="12" y1="9" x2="12" y2="13" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+        <div>
+          <p style="font-weight:600;font-size:14px;color:#374151;margin-bottom:2px;">Vault belum dikirimkan</p>
+          <p style="font-size:13px;color:#6B7280;line-height:1.5;">
+            Vault ini belum dikirimkan oleh pemiliknya. Kamu akan menerima email saat vault sudah dikirimkan.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div id="decrypt-section" class="hidden">
+      <div class="card verify-card">
+        <form id="verify-form" class="verify-form" novalidate>
+          <div class="form-group">
+            <label for="passphrase" class="form-label">Frasa sandi</label>
+            <input type="password" id="passphrase" class="form-input" placeholder="Masukkan frasa sandi yang dibagikan"
+              required autocomplete="current-password" />
+          </div>
+          <button type="submit" id="decrypt-btn" class="btn btn--primary btn--full">
+            Dekripsi &amp; unduh
+          </button>
+        </form>
+
+        <div id="decrypt-result" class="hidden"></div>
+      </div>
+
+      <p class="verify-note">
+        Dekripsi menggunakan Web Crypto API di browsermu.<br />
+        Frasa sandi tidak pernah meninggalkan perangkat ini.
+      </p>
+    </div>
+
+    <div id="vault-loading">
+      <div class="shimmer" style="height:88px;border-radius:8px;"></div>
+    </div>
+
+    <div id="vault-error" class="hidden">
+      <div class="card" style="padding:16px;text-align:center;">
+        <p style="font-size:14px;color:#DC2626;font-weight:500;">Vault tidak ditemukan</p>
+        <p style="font-size:13px;color:#6B7280;margin-top:4px;">
+          Tautan ini mungkin tidak valid atau vault sudah dihapus.
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="toast-container"></div>
+  <script type="module" src="/src/ts/pages/verify.ts"></script>
+</body>
+
+</html>
