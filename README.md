@@ -15,7 +15,6 @@ frasa sandi, atau kunci enkripsi.
 * Masuk tanpa kata sandi: passkey (standar WebAuthn) atau tautan email.
 * Linimasa aktivitas per vault (diunggah, check-in, pengingat, terkirim, dibuka, diunduh).
 * Kategori vault dengan filter di dashboard.
-* Seluruh tampilan berbahasa Indonesia.
 
 ## Arsitektur
 
