@@ -40,7 +40,6 @@ export function bindVaultModal(deps: ModalDeps): void {
     const lang = (document.getElementById("pass-lang") as HTMLSelectElement).value as PassphraseLang;
     const phrase = generatePassphrase(lang);
     passInput.value = phrase;
-    // Jangan ubah state lihat/sembunyi — biarkan seperti apa adanya.
     const confirm = document.getElementById("passphrase-confirm") as HTMLInputElement;
     confirm.value = phrase;
     updateMeter();
@@ -75,7 +74,6 @@ function closeModal(): void {
   modal.classList.remove("modal--open");
   modal.setAttribute("aria-hidden", "true");
   form.reset();
-  // Wipe sensitive UI state
   const successPhrase = document.getElementById("success-phrase")!;
   successPhrase.textContent = "";
   delete successPhrase.dataset.phrase;
