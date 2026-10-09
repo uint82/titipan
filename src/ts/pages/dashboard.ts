@@ -21,11 +21,31 @@ async function init() {
   if (!user) { window.location.href = "/"; return; }
 
   currentUserId = user.id;
-  document.getElementById("user-email")!.textContent = user.email;
+  const emailEl = document.getElementById("user-email-sidebar");
+  if (emailEl) emailEl.textContent = user.email ?? "";
 
-  document.getElementById("signout-btn")!.addEventListener("click", async () => {
+  document.getElementById("signout-btn")?.addEventListener("click", async (e) => {
+    e.preventDefault();
     await signOut();
     window.location.href = "/";
+  });
+  document.getElementById("signout-btn-mobile")?.addEventListener("click", async (e) => {
+    e.preventDefault();
+    await signOut();
+    window.location.href = "/";
+  });
+
+  const sidebar = document.getElementById("dashboard-sidebar");
+  const backdrop = document.getElementById("sidebar-backdrop");
+  
+  document.getElementById("sidebar-toggle")?.addEventListener("click", () => {
+    sidebar?.classList.add("dashboard-sidebar--open");
+    backdrop?.classList.add("sidebar-backdrop--open");
+  });
+
+  backdrop?.addEventListener("click", () => {
+    sidebar?.classList.remove("dashboard-sidebar--open");
+    backdrop?.classList.remove("sidebar-backdrop--open");
   });
 
   bindVaultActions({ reload: loadVaults, showActivity });
