@@ -1,6 +1,7 @@
 import { getAuditLogs, EVENT_LABEL, EVENT_ICON_SVG, EVENT_COLOR } from "../../utils/audit";
 import type { AuditLog } from "../../utils/audit";
 import type { VaultRecord } from "../../utils/types";
+import { resolveDisplayName } from "./vaultView";
 import { esc, formatDateTime } from "../../utils/format";
 
 export function openDrawer(vault: VaultRecord): void {
@@ -8,7 +9,7 @@ export function openDrawer(vault: VaultRecord): void {
   const filename = document.getElementById("drawer-filename")!;
   const body = document.getElementById("drawer-body")!;
 
-  filename.textContent = vault.original_filename ?? "Tanpa nama";
+  filename.textContent = resolveDisplayName(vault) ?? "Nama terenkripsi";
   body.innerHTML = `<p class="drawer__loading">Memuat aktivitas…</p>`;
   drawer.classList.add("drawer--open");
   drawer.setAttribute("aria-hidden", "false");

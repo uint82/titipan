@@ -1,6 +1,7 @@
 import {
-  deriveMasterKey, unwrapFileKey, decryptFile,
+  deriveMasterKey, unwrapFileKey, decryptFile, decryptString,
   base64ToArrayBuffer, base64ToUint8,
+  LEGACY_KDF_ITERATIONS,
 } from "../utils/crypto";
 import { toast } from "./toast";
 import { checkIcon } from "../utils/icons";
@@ -10,13 +11,16 @@ const API_URL = import.meta.env.VITE_SUPABASE_FUNCTIONS_URL;
 
 interface VerifyVaultData {
   id: string;
-  original_filename: string;
+  original_filename: string | null;
   mime_type: string;
   released_at: string | null;
   wrapped_file_key?: string;
   wrap_iv?: string;
   file_iv?: string;
   salt?: string;
+  kdf_iterations?: number;
+  enc_filename?: string | null;
+  filename_iv?: string | null;
   signed_url?: string;
 }
 
@@ -105,7 +109,7 @@ function bindDecryptForm(vault: VerifyVaultData) {
 
     try {
       const salt = base64ToUint8(vault.salt!);
-      const masterKey = await deriveMasterKey(passphrase, salt);
+      const masterKey = await deriveMasterKey(passphrase, salt, vault.kdf_iterations ?? LEGACY_KDF_ITERATIONS);
       const wrappedKey = base64ToArrayBuffer(vault.wrapped_file_key!);
       const wrapIv = base64ToUint8(vault.wrap_iv!);
       const fileKey = await unwrapFileKey(wrappedKey, masterKey, wrapIv);
@@ -116,12 +120,13 @@ function bindDecryptForm(vault: VerifyVaultData) {
 
       const fileIv = base64ToUint8(vault.file_iv!);
       const plaintext = await decryptFile(ciphertext, fileKey, fileIv);
+      const displayName = await resolveFilename(vault, fileKey);
 
       const blob = new Blob([plaintext], { type: vault.mime_type ?? "application/octet-stream" });
       const url = URL.createObjectURL(blob);
       const a = Object.assign(document.createElement("a"), {
         href: url,
-        download: vault.original_filename ?? "file-terdekripsi",
+        download: displayName,
       });
       a.click();
       URL.revokeObjectURL(url);
@@ -139,7 +144,7 @@ function bindDecryptForm(vault: VerifyVaultData) {
             ${checkIcon()}
           </div>
           <h3>File terdekripsi</h3>
-          <p>${esc(vault.original_filename ?? "File")} telah diunduh ke perangkatmu.</p>
+          <p>${esc(displayName)} telah diunduh ke perangkatmu.</p>
         </div>
       `;
       resultEl.classList.remove("hidden");
@@ -154,3 +159,11 @@ function bindDecryptForm(vault: VerifyVaultData) {
 }
 
 init();
+
+async function resolveFilename(vault: VerifyVaultData, fileKey: CryptoKey): Promise<string> {
+  if (vault.enc_filename && vault.filename_iv) {
+    const ciphertext = base64ToArrayBuffer(vault.enc_filename);
+    return decryptString(ciphertext, fileKey, base64ToUint8(vault.filename_iv));
+  }
+  return vault.original_filename ?? "file-terdekripsi";
+}

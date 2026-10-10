@@ -25,7 +25,10 @@ export type VaultRecord = {
   wrap_iv: string;
   file_iv: string;
   salt: string;
-  original_filename?: string;
+  kdf_iterations?: number;
+  original_filename?: string | null;
+  enc_filename?: string | null;
+  filename_iv?: string | null;
   mime_type?: string;
   recipient_email?: string;
   deadline_at?: string;

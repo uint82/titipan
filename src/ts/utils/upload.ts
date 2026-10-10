@@ -1,7 +1,8 @@
 import {
   generateAESKey, generateSalt, deriveMasterKey,
-  encryptFile, wrapFileKey,
+  encryptFile, encryptString, wrapFileKey,
   arrayBufferToBase64, uint8ToBase64,
+  PBKDF2_ITERATIONS,
 } from "../utils/crypto";
 import { uploadEncryptedFile } from "../utils/storage";
 import { insertVault } from "../utils/vaults";
@@ -28,6 +29,7 @@ export async function uploadVault(
 
   const { ciphertext, iv: fileIv } = await encryptFile(file, fileKey);
   const { wrappedKey, iv: wrapIv } = await wrapFileKey(fileKey, masterKey);
+  const { ciphertext: encName, iv: nameIv } = await encryptString(file.name, fileKey);
 
   const storagePath = `encrypted/${userId}/${crypto.randomUUID()}.bin`;
   await uploadEncryptedFile(storagePath, ciphertext);
@@ -44,7 +46,10 @@ export async function uploadVault(
     wrap_iv: uint8ToBase64(wrapIv as Uint8Array<ArrayBuffer>),
     file_iv: uint8ToBase64(fileIv as Uint8Array<ArrayBuffer>),
     salt: uint8ToBase64(salt),
-    original_filename: file.name,
+    kdf_iterations: PBKDF2_ITERATIONS,
+    original_filename: null,
+    enc_filename: arrayBufferToBase64(encName),
+    filename_iv: uint8ToBase64(nameIv as Uint8Array<ArrayBuffer>),
     mime_type: file.type,
     recipient_email: recipientEmail,
     deadline_at: deadline.toISOString(),
@@ -58,7 +63,6 @@ export async function uploadVault(
   await insertVault(vault);
 
   await logEvent(vault.id, "vault_created", {
-    filename: file.name,
     size_bytes: file.size,
     deadline_days: deadlineDays,
     category,
