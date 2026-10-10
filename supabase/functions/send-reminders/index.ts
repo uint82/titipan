@@ -31,7 +31,6 @@ const supabase = createClient(SUPABASE_URL!, SERVICE_ROLE_KEY!, {
 
 type ReminderVault = {
   id: string;
-  original_filename: string;
   deadline_at: string;
   user_id: string;
 };
@@ -100,7 +99,7 @@ async function fetchVaultsNeedingReminder(
 
   const { data, error } = await supabase
     .from("vaults")
-    .select("id, original_filename, deadline_at, user_id")
+    .select("id, deadline_at, user_id")
     .is("released_at", null)
     .is(sentColumn, null)
     .gte("deadline_at", windowStart.toISOString())
@@ -167,8 +166,8 @@ async function sendReminderEmail(
       sender: { name: "Titipan", email: BREVO_SENDER! },
       to: [{ email: toEmail }],
       subject: type === "7d"
-        ? `"${vault.original_filename}" - deadline dalam 7 hari`
-        : `PENTING: "${vault.original_filename}" - deadline besok`,
+        ? `Titipan - deadline vault dalam 7 hari`
+        : `PENTING: Titipan - deadline vault besok`,
       reply_to: { email: BREVO_SENDER!, name: "Titipan" },
       htmlContent: buildReminderHtml(vault, type, deadline, dashboardUrl),
       textContent: buildReminderText(vault, type, deadline, dashboardUrl),
@@ -223,9 +222,9 @@ function buildReminderHtml(
           <table width="100%" cellpadding="0" cellspacing="0"
             style="background:#F8F9FA;border:1px solid #E5E7EB;border-radius:8px;margin-bottom:24px;">
             <tr><td style="padding:12px 16px;border-bottom:1px solid #E5E7EB;">
-              <span style="font-size:12px;color:#6B7280;text-transform:uppercase;">File</span><br/>
-              <span style="font-size:14px;font-weight:500;color:#111827;font-family:monospace;">
-                ${escHtml(vault.original_filename)}
+              <span style="font-size:12px;color:#6B7280;text-transform:uppercase;">Vault</span><br/>
+              <span style="font-size:12px;color:#374151;font-family:monospace;">
+                ${vault.id}
               </span>
             </td></tr>
             <tr><td style="padding:12px 16px;">
@@ -272,7 +271,7 @@ function buildReminderText(
   return `
 Check-in diperlukan dalam ${label} - Titipan
 
-File: ${vault.original_filename}
+Vault ID: ${vault.id}
 Deadline: ${deadline.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
 
 Lakukan check-in sekarang: ${dashboardUrl}
@@ -291,10 +290,6 @@ async function logEvent(
     .insert({ vault_id: vaultId, event_type: eventType, metadata: metadata ?? null });
 
   if (error) console.warn(`audit log failed [${eventType}]:`, error.message);
-}
-
-function escHtml(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
 function json(data: unknown, status = 200): Response {

@@ -34,7 +34,7 @@ Deno.serve(async (req) => {
 
     const { data: vault, error: vaultError } = await supabase
       .from("vaults")
-      .select("id, original_filename, mime_type, released_at, wrapped_file_key, wrap_iv, file_iv, salt, storage_object_key")
+      .select("id, original_filename, enc_filename, filename_iv, kdf_iterations, mime_type, released_at, wrapped_file_key, wrap_iv, file_iv, salt, storage_object_key")
       .eq("id", vaultId)
       .single();
 

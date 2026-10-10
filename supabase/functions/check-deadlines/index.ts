@@ -35,7 +35,6 @@ const EMAIL_RETRY_DELAY_MS = 1_000;
 
 type ExpiredVault = {
   id: string;
-  original_filename: string;
   recipient_email: string;
   storage_object_key: string;
 };
@@ -76,7 +75,7 @@ Deno.serve(async (req) => {
 async function processExpiredVaults(): Promise<ReleaseResult[]> {
   const { data: expired, error } = await supabase
     .from("vaults")
-    .select("id, original_filename, recipient_email, storage_object_key")
+    .select("id, recipient_email, storage_object_key")
     .lt("deadline_at", new Date().toISOString())
     .is("released_at", null)
     .not("recipient_email", "is", null)
@@ -185,7 +184,7 @@ async function sendReleaseEmail(vault: ExpiredVault): Promise<void> {
         email: BREVO_SENDER!,
       },
       to: [{ email: vault.recipient_email }],
-      subject: `Vault telah dikirimkan kepadamu: ${vault.original_filename}`,
+      subject: `Satu vault Titipan telah dikirimkan kepadamu`,
       htmlContent: buildEmailHtml(vault, decryptUrl),
       textContent: buildEmailText(vault, decryptUrl),
     }),
@@ -256,9 +255,9 @@ function buildEmailHtml(vault: ExpiredVault, decryptUrl: string): string {
                 style="background:#F8F9FA;border:1px solid #E5E7EB;border-radius:8px;margin-bottom:24px;">
                 <tr>
                   <td style="padding:12px 16px;border-bottom:1px solid #E5E7EB;">
-                    <span style="font-size:12px;color:#6B7280;text-transform:uppercase;letter-spacing:0.05em;">File</span><br/>
-                    <span style="font-size:14px;font-weight:500;color:#111827;font-family:monospace;">
-                      ${escHtml(vault.original_filename)}
+                    <span style="font-size:12px;color:#6B7280;text-transform:uppercase;letter-spacing:0.05em;">Isi</span><br/>
+                    <span style="font-size:14px;font-weight:500;color:#111827;">
+                      Dokumen terenkripsi (nama file hanya terbuka dengan frasa sandi)
                     </span>
                   </td>
                 </tr>
@@ -304,8 +303,9 @@ Vault telah dikirimkan kepadamu - Titipan
 Seseorang menunjukmu sebagai penerima dokumen terenkripsi.
 Batas waktu check-in mereka telah lewat, sehingga vault ini dikirim otomatis.
 
-File: ${vault.original_filename}
 Vault ID: ${vault.id}
+
+Isi: dokumen terenkripsi (nama file hanya terbuka dengan frasa sandi)
 
 Dekripsi dan unduh: ${decryptUrl}
 
@@ -316,14 +316,6 @@ Semua dekripsi terjadi di browsermu.
 
 function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function escHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
 }
 
 function json(data: unknown, status = 200): Response {

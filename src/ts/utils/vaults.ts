@@ -10,7 +10,7 @@ export async function insertVault(vault: VaultRecord): Promise<void> {
 export async function getVaultById(id: string): Promise<VaultRecord> {
   const { data, error } = await supabase
     .from("vaults")
-    .select("id, original_filename, mime_type, released_at, wrapped_file_key, wrap_iv, file_iv, salt, storage_object_key")
+    .select("id, original_filename, enc_filename, filename_iv, kdf_iterations, mime_type, released_at, wrapped_file_key, wrap_iv, file_iv, salt, storage_object_key")
     .eq("id", id)
     .single();
   if (error) throw error;

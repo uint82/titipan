@@ -48,7 +48,7 @@ async function init() {
     backdrop?.classList.remove("sidebar-backdrop--open");
   });
 
-  bindVaultActions({ reload: loadVaults, showActivity });
+  bindVaultActions({ reload: loadVaults, showActivity, getVault });
   bindVaultModal({ getUserId: () => currentUserId, reload: loadVaults });
   bindDrawer();
   await loadVaults();
@@ -83,8 +83,12 @@ function selectFilter(filter: VaultFilter) {
 }
 
 function showActivity(id: string) {
-  const vault = currentVaults.find(v => v.id === id);
+  const vault = getVault(id);
   if (vault) openDrawer(vault);
+}
+
+function getVault(id: string): VaultRecord | undefined {
+  return currentVaults.find(v => v.id === id);
 }
 
 async function checkPasskeyStatus(email: string) {

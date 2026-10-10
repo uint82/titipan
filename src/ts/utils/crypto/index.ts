@@ -6,10 +6,13 @@ export {
   IV_LENGTH,
   SALT_LENGTH,
   PBKDF2_ITERATIONS,
+  LEGACY_KDF_ITERATIONS,
 } from "./constants";
 export { generateAESKey, generateIV, generateSalt } from "./random";
 export { deriveMasterKey } from "./kdf";
 export { encryptFile, decryptFile } from "./file-cipher";
+export { encryptString, decryptString } from "./text-cipher";
+export type { EncryptedText } from "./text-cipher";
 export { wrapFileKey, unwrapFileKey } from "./key-wrap";
 export {
   arrayBufferToBase64,

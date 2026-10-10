@@ -5,6 +5,19 @@ import { esc } from "../../utils/format";
 
 export type VaultFilter = VaultCategory | "all";
 
+const revealedNames = new Map<string, string>();
+
+export function resolveDisplayName(v: VaultRecord): string | null {
+  const revealed = revealedNames.get(v.id);
+  if (revealed) return revealed;
+  if (v.enc_filename) return null;
+  return v.original_filename ?? null;
+}
+
+export function setRevealedName(id: string, name: string): void {
+  revealedNames.set(id, name);
+}
+
 export function renderFilterBar(
   vaults: VaultRecord[],
   activeFilter: VaultFilter,
@@ -127,13 +140,18 @@ export function renderVaultCard(v: VaultRecord): string {
   const catColor = CATEGORY_COLOR[v.category];
   const catLabel = CATEGORY_LABEL[v.category];
   const catIcon = CATEGORY_ICON[v.category];
+  const displayName = resolveDisplayName(v);
+  const filename = displayName ?? "Nama terenkripsi";
+  const revealButton = displayName === null
+    ? `<button class="btn btn--ghost btn--sm" data-action="reveal-name">Lihat nama</button>`
+    : "";
 
   return `
     <article class="card vault-card" data-id="${v.id}" data-path="${esc(v.storage_object_key)}">
       <div class="vault-card__top">
         <div class="vault-card__file">
           ${fileIcon(16)}
-          <span class="vault-card__filename" title="${esc(v.original_filename ?? '')}">${esc(v.original_filename ?? 'Tanpa nama')}</span>
+          <span class="vault-card__filename" title="${esc(filename)}">${esc(filename)}</span>
         </div>
         <span class="badge badge--${statusBadge(status)}">${statusLabel(status)}</span>
       </div>
@@ -160,6 +178,7 @@ export function renderVaultCard(v: VaultRecord): string {
 
       <div class="vault-card__actions">
         ${checkinButton(status)}
+        ${revealButton}
         <button class="btn btn--danger btn--sm" data-action="delete">Hapus</button>
         <button class="btn btn--ghost btn--sm vault-card__activity" data-action="view-activity">
           Aktivitas
