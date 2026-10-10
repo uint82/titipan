@@ -27,6 +27,7 @@ interface VerifyVaultData {
 async function init() {
   const params = new URLSearchParams(window.location.search);
   const vaultId = params.get("vault");
+  const token = params.get("t");
 
   const loadingEl = document.getElementById("vault-loading")!;
   const errorEl = document.getElementById("vault-error")!;
@@ -44,7 +45,7 @@ async function init() {
     const res = await fetch(`${API_URL}/verify-vault`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ vaultId })
+      body: JSON.stringify({ vaultId, token })
     });
 
     if (res.status === 429) {

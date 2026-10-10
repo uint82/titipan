@@ -15,7 +15,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return cors(new Response(null, { status: 204 }));
 
   try {
-    const { vaultId } = await req.json();
+    const { vaultId, token } = await req.json();
     if (!vaultId) {
       return cors(error("vaultId wajib diisi", 400));
     }
@@ -34,11 +34,11 @@ Deno.serve(async (req) => {
 
     const { data: vault, error: vaultError } = await supabase
       .from("vaults")
-      .select("id, original_filename, enc_filename, filename_iv, kdf_iterations, mime_type, released_at, wrapped_file_key, wrap_iv, file_iv, salt, storage_object_key")
+      .select("id, original_filename, enc_filename, filename_iv, kdf_iterations, release_token, mime_type, released_at, wrapped_file_key, wrap_iv, file_iv, salt, storage_object_key")
       .eq("id", vaultId)
       .single();
 
-    if (vaultError || !vault) {
+    if (vaultError || !vault || !tokenMatches(token, vault.release_token)) {
       return cors(error("Vault tidak ditemukan", 404));
     }
 
@@ -65,8 +65,10 @@ Deno.serve(async (req) => {
       throw signedUrlError ?? new Error("Failed to generate signed URL");
     }
 
+    const { release_token: _withheld, ...safeVault } = vault;
+
     return cors(json({
-      ...vault,
+      ...safeVault,
       signed_url: signedUrlData.signedUrl
     }));
 
@@ -76,8 +78,17 @@ Deno.serve(async (req) => {
   }
 });
 
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), {
+function tokenMatches(provided: unknown, stored: string | null): boolean {
+  if (!stored) return true;
+  if (typeof provided !== "string" || provided.length !== stored.length) return false;
+  let diff = 0;
+  for (let i = 0; i < stored.length; i++) {
+    diff |= provided.charCodeAt(i) ^ stored.charCodeAt(i);
+  }
+  return diff === 0;
+}
+
+function json(data: unknown, status = 200): Response {  return new Response(JSON.stringify(data), {
     status, headers: { "Content-Type": "application/json" },
   });
 }
