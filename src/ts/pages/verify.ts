@@ -29,7 +29,8 @@ interface VerifyVaultData {
 async function init() {
   const params = new URLSearchParams(window.location.search);
   const vaultId = params.get("vault");
-  const token = params.get("t");
+  const token = params.get("t") ?? readStoredToken();
+  stripTokenFromUrl(vaultId, token);
 
   const loadingEl = document.getElementById("vault-loading")!;
   const errorEl = document.getElementById("vault-error")!;
@@ -165,6 +166,16 @@ function bindDecryptForm(vault: VerifyVaultData) {
 }
 
 init();
+
+function readStoredToken(): string | null {
+  const state = window.history.state as { token?: unknown } | null;
+  return typeof state?.token === "string" ? state.token : null;
+}
+
+function stripTokenFromUrl(vaultId: string | null, token: string | null): void {
+  if (!vaultId) return;
+  window.history.replaceState({ token }, "", `${window.location.pathname}?vault=${encodeURIComponent(vaultId)}`);
+}
 
 async function resolveFilename(vault: VerifyVaultData, fileKey: CryptoKey): Promise<string> {
   if (vault.enc_filename && vault.filename_iv) {
