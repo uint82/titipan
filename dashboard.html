@@ -183,7 +183,7 @@
           <div class="form-group">
             <label for="passphrase" class="form-label">Frasa sandi enkripsi</label>
             <div class="pass-input-row">
-              <input type="password" id="passphrase" class="form-input" placeholder="Buat frasa sandi yang kuat"
+              <input type="password" id="passphrase" class="form-input" placeholder="Klik Buatkan yang kuat" readonly
                 required autocomplete="new-password" />
               <button type="button" id="pass-toggle" class="btn btn--secondary btn--sm pass-toggle"
                 aria-label="Tampilkan frasa"></button>
@@ -196,26 +196,9 @@
               <button type="button" id="pass-generate" class="btn btn--secondary btn--sm">Buatkan yang kuat</button>
               <button type="button" id="pass-copy" class="btn btn--secondary btn--sm">Salin</button>
             </div>
-            <div class="pass-meter" aria-live="polite">
-              <div class="pass-meter__track">
-                <div class="pass-meter__bar" id="pass-meter-bar"></div>
-              </div>
-              <div class="pass-meter__meta">
-                <span id="pass-strength-label">Belum ada frasa</span>
-                <span id="pass-entropy" class="pass-meter__entropy"></span>
-              </div>
-              <ul id="pass-feedback" class="pass-feedback"></ul>
-            </div>
             <span class="form-hint">
-              Minimal 16 karakter &amp; entropi ≥ 60 bit. Disarankan 7 kata acak dari generator.
+              Frasa hanya dari generator dan tidak bisa diketik manual. Salin lalu bagikan di luar aplikasi.
             </span>
-          </div>
-
-          <div class="form-group">
-            <label for="passphrase-confirm" class="form-label">Konfirmasi frasa sandi</label>
-            <input type="password" id="passphrase-confirm" class="form-input" placeholder="Ketik ulang frasa sandi"
-              required autocomplete="new-password" />
-            <span class="form-hint">Jika salah ketik, file tidak bisa didekripsi selamanya.</span>
           </div>
 
           <div class="form-group">
