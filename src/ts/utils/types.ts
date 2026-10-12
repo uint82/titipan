@@ -29,8 +29,10 @@ export type VaultRecord = {
   original_filename?: string | null;
   enc_filename?: string | null;
   filename_iv?: string | null;
+  enc_mime_type?: string | null;
+  mime_iv?: string | null;
   release_token?: string | null;
-  mime_type?: string;
+  mime_type?: string | null;
   recipient_email?: string;
   deadline_at?: string;
   deadline_days?: number;

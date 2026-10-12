@@ -10,3 +10,10 @@ export function formatDateTime(iso: string): string {
     hour: "2-digit", minute: "2-digit",
   });
 }
+
+export function bucketSizeLabel(bytes: number): string {
+  const mb = bytes / (1024 * 1024);
+  if (mb < 1) return "<1MB";
+  if (mb < 10) return "1-10MB";
+  return "10-50MB";
+}
