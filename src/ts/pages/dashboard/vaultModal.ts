@@ -3,7 +3,7 @@ import { uploadVault } from "../../utils/upload";
 import type { UploadPayload } from "../../utils/upload";
 import { fileIcon, uploadIcon, eyeIcon, eyeOffIcon } from "../../utils/icons";
 import { esc } from "../../utils/format";
-import { generatePassphrase, estimateStrength } from "../../utils/passphrase";
+import { generatePassphrase } from "../../utils/passphrase";
 import type { PassphraseLang } from "../../utils/passphrase";
 import { toast } from "../toast";
 
@@ -14,11 +14,14 @@ type ModalDeps = {
   reload: () => Promise<void>;
 };
 
+let generatedPhrase = "";
+
 export function openModal(): void {
   const modal = document.getElementById("vault-modal")!;
   modal.classList.add("modal--open");
   modal.setAttribute("aria-hidden", "false");
   showFormView();
+  autoFillPhrase();
 }
 
 export function bindVaultModal(deps: ModalDeps): void {
@@ -33,17 +36,13 @@ export function bindVaultModal(deps: ModalDeps): void {
   fileInput.addEventListener("change", () => showPickedFile(fileInput, fileLabel));
 
   const passInput = document.getElementById("passphrase") as HTMLInputElement;
-  passInput.addEventListener("input", updateMeter);
   setToggleUI(false);
 
   document.getElementById("pass-generate")!.addEventListener("click", () => {
     const lang = (document.getElementById("pass-lang") as HTMLSelectElement).value as PassphraseLang;
-    const phrase = generatePassphrase(lang);
-    passInput.value = phrase;
-    const confirm = document.getElementById("passphrase-confirm") as HTMLInputElement;
-    confirm.value = phrase;
-    updateMeter();
-    toast("Frasa kuat dibuat — salin & bagikan di luar aplikasi", "success");
+    generatedPhrase = generatePassphrase(lang);
+    passInput.value = generatedPhrase;
+    toast("Frasa kuat dibuat - salin & bagikan di luar aplikasi", "success");
   });
 
   document.getElementById("pass-copy")!.addEventListener("click", async () => {
@@ -58,7 +57,7 @@ export function bindVaultModal(deps: ModalDeps): void {
 
   document.getElementById("success-copy")!.addEventListener("click", async () => {
     const phrase = document.getElementById("success-phrase")!.dataset.phrase ?? "";
-    await copyText(phrase, "Frasa disalin — bagikan lewat jalur berbeda");
+    await copyText(phrase, "Frasa disalin - bagikan lewat jalur berbeda");
   });
 
   const form = document.getElementById("vault-form") as HTMLFormElement;
@@ -74,6 +73,7 @@ function closeModal(): void {
   modal.classList.remove("modal--open");
   modal.setAttribute("aria-hidden", "true");
   form.reset();
+  generatedPhrase = "";
   const successPhrase = document.getElementById("success-phrase")!;
   successPhrase.textContent = "";
   delete successPhrase.dataset.phrase;
@@ -81,15 +81,19 @@ function closeModal(): void {
   if (passInput) passInput.type = "password";
   setToggleUI(false);
   showFormView();
-  updateMeter();
   label.innerHTML = `
     ${uploadIcon(24)}
     <span>Klik untuk unggah atau seret &amp; lepas file ke sini</span>
   `;
 }
 
-function showPickedFile(fileInput: HTMLInputElement, fileLabel: HTMLElement): void {
-  const file = fileInput.files?.[0];
+function autoFillPhrase(): void {
+  const lang = (document.getElementById("pass-lang") as HTMLSelectElement).value as PassphraseLang;
+  generatedPhrase = generatePassphrase(lang);
+  (document.getElementById("passphrase") as HTMLInputElement).value = generatedPhrase;
+}
+
+function showPickedFile(fileInput: HTMLInputElement, fileLabel: HTMLElement): void {  const file = fileInput.files?.[0];
   if (!file) return;
   fileLabel.innerHTML = `
     ${fileIcon(20)}
@@ -105,32 +109,6 @@ function setToggleUI(visible: boolean): void {
   btn.title = visible ? "Sembunyikan" : "Lihat";
 }
 
-function updateMeter(): void {
-  const passInput = document.getElementById("passphrase") as HTMLInputElement | null;
-  const bar = document.getElementById("pass-meter-bar") as HTMLElement | null;
-  const label = document.getElementById("pass-strength-label") as HTMLElement | null;
-  const entropyEl = document.getElementById("pass-entropy") as HTMLElement | null;
-  const feedback = document.getElementById("pass-feedback") as HTMLElement | null;
-  if (!passInput || !bar || !label || !entropyEl || !feedback) return;
-
-  const v = passInput.value;
-  if (!v) {
-    bar.className = "pass-meter__bar";
-    bar.style.width = "0%";
-    label.textContent = "Belum ada frasa";
-    entropyEl.textContent = "";
-    feedback.innerHTML = "";
-    return;
-  }
-
-  const r = estimateStrength(v);
-  bar.className = `pass-meter__bar pass-meter__bar--l${r.level}`;
-  bar.style.width = ["12%", "35%", "70%", "100%"][r.level];
-  label.textContent = r.label;
-  entropyEl.textContent = `~${r.entropyBits} bit · ${r.length} karakter · ${r.wordCount} kata`;
-  feedback.innerHTML = r.reasons.map((m) => `<li>${esc(m)}</li>`).join("");
-}
-
 async function copyText(text: string, okMsg: string): Promise<void> {
   if (!text) {
     toast("Belum ada frasa untuk disalin", "warning");
@@ -140,7 +118,6 @@ async function copyText(text: string, okMsg: string): Promise<void> {
     await navigator.clipboard.writeText(text);
     toast(okMsg, "success");
   } catch {
-    // Fallback untuk browser tanpa clipboard permission
     const ta = document.createElement("textarea");
     ta.value = text;
     document.body.appendChild(ta);
@@ -180,7 +157,6 @@ function readForm(fileInput: HTMLInputElement): UploadPayload | null {
   const recipientEmail = (document.getElementById("recipient") as HTMLInputElement).value.trim();
   const deadlineDays = parseInt((document.getElementById("deadline") as HTMLSelectElement).value, 10);
   const passphrase = (document.getElementById("passphrase") as HTMLInputElement).value;
-  const confirm = (document.getElementById("passphrase-confirm") as HTMLInputElement).value;
   const category = (document.getElementById("category") as HTMLSelectElement).value as VaultCategory;
   const shareOk = (document.getElementById("share-check") as HTMLInputElement).checked;
 
@@ -192,17 +168,8 @@ function readForm(fileInput: HTMLInputElement): UploadPayload | null {
     toast(`File terlalu besar. Maksimal ${MAX_FILE_SIZE_MB}MB.`, "error");
     return null;
   }
-  const strength = estimateStrength(passphrase);
-  if (!strength.ok) {
-    toast(
-      strength.reasons[0] ?? "Frasa terlalu lemah — gunakan generator 7 kata.",
-      "warning"
-    );
-    updateMeter();
-    return null;
-  }
-  if (passphrase !== confirm) {
-    toast("Konfirmasi frasa tidak cocok.", "warning");
+  if (passphrase !== generatedPhrase) {
+    toast("Klik Buatkan yang kuat dulu - frasa manual tidak diterima.", "warning");
     return null;
   }
   if (!shareOk) {
@@ -225,11 +192,9 @@ function showSuccessView(filename: string, passphrase: string): void {
   const phraseEl = document.getElementById("success-phrase")!;
   phraseEl.textContent = passphrase;
   phraseEl.dataset.phrase = passphrase;
-  // Kosongkan input agar tidak tertinggal di DOM form
   (document.getElementById("passphrase") as HTMLInputElement).value = "";
-  (document.getElementById("passphrase-confirm") as HTMLInputElement).value = "";
-  updateMeter();
-  toast("Vault tersimpan — salin frasa & bagikan di luar aplikasi", "success");
+  generatedPhrase = "";
+  toast("Vault tersimpan - salin frasa & bagikan di luar aplikasi", "success");
 }
 
 function setBusy(btn: HTMLButtonElement, busy: boolean): void {
