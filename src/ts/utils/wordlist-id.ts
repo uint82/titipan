@@ -1,5 +1,5 @@
 // Kata dasar ID 4-6 huruf, ascii, tanpa q/x/z - disample merata dari KBBI (sastrawi).
-// 2048 kata = 11 bit/kata, 6 kata = 66 bit entropy.
+// 2048 kata = 11 bit/kata, 7 kata = 77 bit entropy.
 export const ID_WORDS: string[] = [
   "abad",
   "abang",

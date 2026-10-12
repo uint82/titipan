@@ -195,7 +195,7 @@ function readForm(fileInput: HTMLInputElement): UploadPayload | null {
   const strength = estimateStrength(passphrase);
   if (!strength.ok) {
     toast(
-      strength.reasons[0] ?? "Frasa terlalu lemah — gunakan generator 6 kata.",
+      strength.reasons[0] ?? "Frasa terlalu lemah — gunakan generator 7 kata.",
       "warning"
     );
     updateMeter();

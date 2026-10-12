@@ -1,5 +1,5 @@
 // Generator + penilai kekuatan frasa sandi.
-// ID_WORDS: 2048 kata (11 bit/kata) -> 6 kata = 66 bit.
+// ID_WORDS: 2048 kata (11 bit/kata) -> 7 kata = 77 bit.
 // EN_WORDS (EFF large): 7776 kata (12.9 bit/kata) -> 6 kata = ~77 bit.
 // Semua memakai crypto.getRandomValues (CSPRNG browser).
 
@@ -8,14 +8,14 @@ import { EN_WORDS } from "./wordlist-en";
 
 export type PassphraseLang = "id" | "en";
 
-export const WORD_COUNTS: Record<PassphraseLang, number> = { id: 6, en: 6 };
+export const WORD_COUNTS: Record<PassphraseLang, number> = { id: 7, en: 6 };
 export const ENTROPY_BITS: Record<PassphraseLang, number> = {
-  id: Math.round(6 * Math.log2(ID_WORDS.length)),
-  en: Math.round(6 * Math.log2(EN_WORDS.length)),
+  id: Math.round(WORD_COUNTS.id * Math.log2(ID_WORDS.length)),
+  en: Math.round(WORD_COUNTS.en * Math.log2(EN_WORDS.length)),
 };
 
 // Batas blokir: entropi charset minimal + panjang minimal.
-// 60 bit ≈ di luar jangkauan brute-force online & mahal offline dengan PBKDF2-250k.
+// 60 bit ≈ di luar jangkauan brute-force online & mahal offline dengan PBKDF2-600k.
 export const MIN_ENTROPY_BITS = 60;
 export const MIN_LENGTH = 16;
 
@@ -116,14 +116,15 @@ export function estimateStrength(passphrase: string): StrengthResult {
 
   const ok = level >= 2 && !blockHit && length >= MIN_LENGTH;
   if (!ok && reasons.length === 0) {
-    reasons.push(`Butuh entropi ≥ ${MIN_ENTROPY_BITS} bit - coba generator 6 kata di bawah.`);
+    reasons.push(`Butuh entropi ≥ ${MIN_ENTROPY_BITS} bit - coba generator ${WORD_COUNTS.id} kata di bawah.`);
   }
 
   return { level, label, entropyBits, wordCount, length, ok, reasons };
 }
 
 export function describeGenerator(lang: PassphraseLang): string {
+  const n = WORD_COUNTS[lang];
   return lang === "id"
-    ? `6 kata acak Indonesia (~${ENTROPY_BITS.id} bit)`
-    : `6 kata acak Inggris EFF (~${ENTROPY_BITS.en} bit)`;
+    ? `${n} kata acak Indonesia (~${ENTROPY_BITS.id} bit)`
+    : `${n} kata acak Inggris EFF (~${ENTROPY_BITS.en} bit)`;
 }
