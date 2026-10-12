@@ -37,6 +37,7 @@ type ExpiredVault = {
   id: string;
   recipient_email: string;
   storage_object_key: string;
+  release_token: string | null;
 };
 
 type ReleaseResult = {
@@ -75,7 +76,7 @@ Deno.serve(async (req) => {
 async function processExpiredVaults(): Promise<ReleaseResult[]> {
   const { data: expired, error } = await supabase
     .from("vaults")
-    .select("id, recipient_email, storage_object_key")
+    .select("id, recipient_email, storage_object_key, release_token")
     .lt("deadline_at", new Date().toISOString())
     .is("released_at", null)
     .not("recipient_email", "is", null)
@@ -170,7 +171,7 @@ async function sendWithRetry(vault: ExpiredVault): Promise<number> {
 }
 
 async function sendReleaseEmail(vault: ExpiredVault): Promise<void> {
-  const decryptUrl = `${APP_URL}/verify.html?vault=${vault.id}`;
+  const decryptUrl = buildDecryptUrl(vault);
 
   const res = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
@@ -194,6 +195,11 @@ async function sendReleaseEmail(vault: ExpiredVault): Promise<void> {
     const body = await res.text();
     throw new Error(`Brevo error ${res.status}: ${body}`);
   }
+}
+
+function buildDecryptUrl(vault: ExpiredVault): string {
+  const base = `${APP_URL}/verify.html?vault=${vault.id}`;
+  return vault.release_token ? `${base}&t=${vault.release_token}` : base;
 }
 
 async function logEvent(

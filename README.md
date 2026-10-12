@@ -117,5 +117,5 @@ public/favicon.svg       Ikon tab browser
 ## Catatan keamanan
 
 * Frasa sandi tidak pernah dikirim ke server dan tidak disimpan di mana pun.
-* Link verifikasi adalah token bearer. Perlakukan seperti kata sandi dan jangan dibagikan ke selain penerima.
+* Link verifikasi (`verify.html?vault=<id>&t=<token>`) adalah token bearer 256-bit. Perlakukan seperti kata sandi dan jangan dibagikan ke selain penerima.
 * Tautan unduh bertanda tangan kedaluwarsa dalam 15 menit dan diterbitkan ulang setiap halaman dibuka.

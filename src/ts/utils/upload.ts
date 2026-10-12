@@ -1,5 +1,5 @@
 import {
-  generateAESKey, generateSalt, deriveMasterKey,
+  generateAESKey, generateSalt, generateReleaseToken, deriveMasterKey,
   encryptFile, encryptString, wrapFileKey,
   arrayBufferToBase64, uint8ToBase64,
   PBKDF2_ITERATIONS,
@@ -47,6 +47,7 @@ export async function uploadVault(
     file_iv: uint8ToBase64(fileIv as Uint8Array<ArrayBuffer>),
     salt: uint8ToBase64(salt),
     kdf_iterations: PBKDF2_ITERATIONS,
+    release_token: generateReleaseToken(),
     original_filename: null,
     enc_filename: arrayBufferToBase64(encName),
     filename_iv: uint8ToBase64(nameIv as Uint8Array<ArrayBuffer>),
