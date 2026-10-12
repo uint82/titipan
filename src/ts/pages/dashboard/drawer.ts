@@ -39,7 +39,7 @@ export function bindDrawer(): void {
 
 function renderTimelineEvent(log: AuditLog): string {
   const icon = EVENT_ICON_SVG[log.event_type] ?? "";
-  const label = EVENT_LABEL[log.event_type] ?? log.event_type;
+  const label = EVENT_LABEL[log.event_type] ?? esc(log.event_type);
   const color = EVENT_COLOR[log.event_type] ?? "neutral";
 
   return `
