@@ -97,24 +97,19 @@ Deno.serve(async (req) => {
 
 
 async function getCredentialIds(email: string): Promise<string[]> {
-  const normalized = email.toLowerCase();
-  const perPage = 1000;
-  let page = 1;
+  const { data: mapping } = await supabase
+    .from("passkey_users")
+    .select("user_id")
+    .eq("email", email.toLowerCase())
+    .single();
 
-  while (true) {
-    const { data, error } = await supabase.auth.admin.listUsers({ page, perPage });
-    if (error || !data?.users?.length) return [];
-    const user = data.users.find((u) => u.email?.toLowerCase() === normalized);
-    if (user) {
-      const { data: keys } = await supabase
-        .from("passkeys")
-        .select("id")
-        .eq("user_id", user.id);
-      return (keys ?? []).map((row: { id: string }) => row.id);
-    }
-    if (data.users.length < perPage) return [];
-    if (++page > 100) return [];
-  }
+  if (!mapping) return [];
+
+  const { data: keys } = await supabase
+    .from("passkeys")
+    .select("id")
+    .eq("user_id", mapping.user_id);
+  return (keys ?? []).map((row: { id: string }) => row.id);
 }
 
 function uuidToBytes(uuid: string): Uint8Array {

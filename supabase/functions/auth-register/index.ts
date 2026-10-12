@@ -62,6 +62,15 @@ Deno.serve(async (req) => {
 
     if (insertError) throw insertError;
 
+    const { error: mapError } = await supabase
+      .from("passkey_users")
+      .upsert(
+        { email: email.toLowerCase(), user_id: user.id },
+        { onConflict: "email" }
+      );
+
+    if (mapError) throw mapError;
+
     return cors(json({ success: true }));
 
   } catch (err) {
