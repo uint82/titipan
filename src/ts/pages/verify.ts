@@ -12,7 +12,7 @@ const API_URL = import.meta.env.VITE_SUPABASE_FUNCTIONS_URL;
 interface VerifyVaultData {
   id: string;
   original_filename: string | null;
-  mime_type: string;
+  mime_type: string | null;
   released_at: string | null;
   wrapped_file_key?: string;
   wrap_iv?: string;
@@ -21,6 +21,8 @@ interface VerifyVaultData {
   kdf_iterations?: number;
   enc_filename?: string | null;
   filename_iv?: string | null;
+  enc_mime_type?: string | null;
+  mime_iv?: string | null;
   signed_url?: string;
 }
 
@@ -70,7 +72,7 @@ async function init() {
       </div>
       <div class="vault-info-row">
         <span>Tipe</span>
-        <span>${esc(vault.mime_type ?? "-")}</span>
+        <span id="vault-mimetype">${esc(vault.mime_type ?? "Terenkripsi")}</span>
       </div>
       <div class="vault-info-row">
         <span>Status</span>
@@ -122,8 +124,9 @@ function bindDecryptForm(vault: VerifyVaultData) {
       const fileIv = base64ToUint8(vault.file_iv!);
       const plaintext = await decryptFile(ciphertext, fileKey, fileIv);
       const displayName = await resolveFilename(vault, fileKey);
+      const displayMime = await resolveMime(vault, fileKey);
 
-      const blob = new Blob([plaintext], { type: vault.mime_type ?? "application/octet-stream" });
+      const blob = new Blob([plaintext], { type: displayMime });
       const url = URL.createObjectURL(blob);
       const a = Object.assign(document.createElement("a"), {
         href: url,
@@ -139,6 +142,8 @@ function bindDecryptForm(vault: VerifyVaultData) {
       });
 
       form.classList.add("hidden");
+      const mimeEl = document.getElementById("vault-mimetype");
+      if (mimeEl) mimeEl.textContent = displayMime;
       resultEl.innerHTML = `
         <div class="verify-status">
           <div class="verify-status__icon verify-status__icon--success">
@@ -167,4 +172,13 @@ async function resolveFilename(vault: VerifyVaultData, fileKey: CryptoKey): Prom
     return decryptString(ciphertext, fileKey, base64ToUint8(vault.filename_iv));
   }
   return vault.original_filename ?? "file-terdekripsi";
+}
+
+async function resolveMime(vault: VerifyVaultData, fileKey: CryptoKey): Promise<string> {
+  if (vault.enc_mime_type && vault.mime_iv) {
+    const ciphertext = base64ToArrayBuffer(vault.enc_mime_type);
+    const mime = await decryptString(ciphertext, fileKey, base64ToUint8(vault.mime_iv));
+    return mime || "application/octet-stream";
+  }
+  return vault.mime_type ?? "application/octet-stream";
 }

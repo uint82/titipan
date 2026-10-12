@@ -34,7 +34,7 @@ Deno.serve(async (req) => {
 
     const { data: vault, error: vaultError } = await supabase
       .from("vaults")
-      .select("id, original_filename, enc_filename, filename_iv, kdf_iterations, release_token, mime_type, released_at, wrapped_file_key, wrap_iv, file_iv, salt, storage_object_key")
+      .select("id, original_filename, enc_filename, filename_iv, enc_mime_type, mime_iv, kdf_iterations, release_token, mime_type, released_at, wrapped_file_key, wrap_iv, file_iv, salt, storage_object_key")
       .eq("id", vaultId)
       .single();
 
@@ -46,7 +46,6 @@ Deno.serve(async (req) => {
       return cors(json({
         id: vault.id,
         original_filename: vault.original_filename,
-        mime_type: vault.mime_type,
         released_at: null
       }));
     }

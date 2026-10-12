@@ -7,6 +7,7 @@ import {
 import { uploadEncryptedFile } from "../utils/storage";
 import { insertVault } from "../utils/vaults";
 import { logEvent } from "../utils/audit";
+import { bucketSizeLabel } from "../utils/format";
 import type { VaultRecord, VaultCategory } from "../utils/types";
 
 export type UploadPayload = {
@@ -30,6 +31,7 @@ export async function uploadVault(
   const { ciphertext, iv: fileIv } = await encryptFile(file, fileKey);
   const { wrappedKey, iv: wrapIv } = await wrapFileKey(fileKey, masterKey);
   const { ciphertext: encName, iv: nameIv } = await encryptString(file.name, fileKey);
+  const { ciphertext: encMime, iv: mimeIv } = await encryptString(file.type || "application/octet-stream", fileKey);
 
   const storagePath = `encrypted/${userId}/${crypto.randomUUID()}.bin`;
   await uploadEncryptedFile(storagePath, ciphertext);
@@ -51,7 +53,9 @@ export async function uploadVault(
     original_filename: null,
     enc_filename: arrayBufferToBase64(encName),
     filename_iv: uint8ToBase64(nameIv as Uint8Array<ArrayBuffer>),
-    mime_type: file.type,
+    enc_mime_type: arrayBufferToBase64(encMime),
+    mime_iv: uint8ToBase64(mimeIv as Uint8Array<ArrayBuffer>),
+    mime_type: null,
     recipient_email: recipientEmail,
     deadline_at: deadline.toISOString(),
     deadline_days: deadlineDays,
@@ -64,7 +68,7 @@ export async function uploadVault(
   await insertVault(vault);
 
   await logEvent(vault.id, "vault_created", {
-    size_bytes: file.size,
+    size_bucket: bucketSizeLabel(file.size),
     deadline_days: deadlineDays,
     category,
   });
